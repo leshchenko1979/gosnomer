@@ -33,3 +33,17 @@
     Traceback (most recent call last):
     ...
     ValueError: Недопустимый формат: "ХХ*9ХХ99**99".
+
+Модуль также содержит константы ALLOWED_LETTERS, ALLOWED_NUMBERS, ALLOWED_SYMBOLS и ALLOWED_FORMATS:
+
+    >>> ALLOWED_LETTERS
+    'АВЕКМНОРСТУХ'
+
+    >>> ALLOWED_NUMBERS
+    '0123456789'
+
+    >>> ALLOWED_SYMBOLS == ALLOWED_LETTERS + ALLOWED_SYMBOLS
+    True
+
+    >>> 'Х999ХХ99' in ALLOWED_FORMATS
+    True

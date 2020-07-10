@@ -1,1 +1,1 @@
-from .gosnomer import normalize
+from .gosnomer import *

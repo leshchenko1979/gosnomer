@@ -1,17 +1,27 @@
+'''
+Исправление ошибок ручного ввода в данных государственных регистрационных номеров автомобилей РФ.
+
+Функция normalize (no) возвращает переданный ей номер no с исправленными ошибками.
+
+Модуль также содержит константы ALLOWED_LETTERS (разрешенные ГОСТом буквы),
+ALLOWED_NUMBERS (цифры), ALLOWED_SYMBOLS (объединение разрешенных букв и цифр)
+и ALLOWED_FORMATS (разрешенные форматы строки с номером).
+'''
+
 import re
 
 _repl_old = 'ABCEHIKMOPTXYЗ'
 _repl_new = 'АВСЕН1КМОРТХУ3'
 _repl_tuples = list(zip(_repl_old, _repl_new))
 
-_allowed_letters = 'АВЕКМНОРСТУХ'
-_allowed_numbers = '0123456789'
-_allowed_symbols = _allowed_letters + _allowed_numbers
+ALLOWED_LETTERS = 'АВЕКМНОРСТУХ'
+ALLOWED_NUMBERS = '0123456789'
+ALLOWED_SYMBOLS = ALLOWED_LETTERS + ALLOWED_NUMBERS
 
 # Далее определены возможные форматы госномеров для первых 2 типов госномеров
 # согласно ГОСТ Р 50577-2018 (https://ru.wikipedia.org/wiki/Регистрационные_знаки_транспортных_средств_в_России)
 
-_allowed_formats = [
+ALLOWED_FORMATS = [
     'Х999ХХ99',  # Тип 1 — Регистрационные знаки легковых, грузовых автомобилей и автобусов 
     'Х999ХХ999', # Тип 1 — Регистрационные знаки легковых, грузовых автомобилей и автобусов (3 знака в регионе)
     'ХХ99999',   # Тип 1Б — Регистрационные знаки для легковых такси
@@ -27,6 +37,16 @@ _allowed_formats = [
     'ХХ99ХХ99'   # Тип 4Б — Регистрационные знаки для мопедов
 ]
 
+'''
+>>> ALLOWED_LETTERS
+'АВЕКМНОРСТУХ'
+>>> ALLOWED_NUMBERS
+'0123456789'
+>>> ALLOWED_SYMBOLS == ALLOWED_LETTERS + ALLOWED_SYMBOLS
+True
+>>> 'Х999ХХ99' in ALLOWED_FORMATS
+True
+'''
 
 def normalize(no):
     '''Берет на вход государственный регистрационнй номер авто с ошибками ручного ввода
@@ -73,10 +93,10 @@ def normalize(no):
         if c in '0О':
             f = f + '*'
             continue
-        if c in _allowed_letters:
+        if c in ALLOWED_LETTERS:
             f = f + 'Х'
             continue
-        if c in _allowed_numbers:
+        if c in ALLOWED_NUMBERS:
             f = f + '9'
             continue
         raise ValueError(f'Недопустимый символ: "{c}".')
@@ -92,7 +112,7 @@ def normalize(no):
             if found_format:
                 return found_format
         else:
-            if f in _allowed_formats:
+            if f in ALLOWED_FORMATS:
                 return f
             else:
                 return None
