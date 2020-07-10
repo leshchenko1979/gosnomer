@@ -1,0 +1,1 @@
+from .gosnomer import normalize

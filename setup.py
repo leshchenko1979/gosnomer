@@ -5,14 +5,17 @@ with open("README.md", "r", encoding='utf-8') as fh:
 
 setuptools.setup(
     name="gosnomer",
-    version="0.0.2",
+    version="0.0.4",
     author="Alexey Leshchenko",
     author_email="leshchenko@gmail.com",
     description="Исправление ручного ввода автомобильных номеров РФ",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/leshchenko1979/gosnomer",
-    packages=setuptools.find_packages(),
+    packages=['gosnomer'],
+    exclude_package_data={
+        'gosnomer': ["test**"]
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
