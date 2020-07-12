@@ -132,10 +132,15 @@ def normalize(no):
     >>> normalize ('000000000')
     Traceback (most recent call last):
     ...
-    ValueError: Недопустимый регион: "000"
+    ValueError: Номер не может содержать числовые последовательности, равные 0
 
-    >>> normalize ('000000102')
-    'О000ОО102'
+    >>> normalize ('000100001')
+    Traceback (most recent call last):
+    ...
+    ValueError: Недопустимый регион: "001"
+
+    >>> normalize ('000100102')
+    'О001ОО102'
 
     >>> normalize ('ГН99900')
     Traceback (most recent call last):
@@ -162,11 +167,6 @@ def normalize(no):
     Traceback (most recent call last):
     ...
     ValueError: Недопустимый регион: "909"
-
-    >>> normalize ('оо23оооо')
-    Traceback (most recent call last):
-    ...
-    ValueError: Недопустимый регион: "00"
     '''
 
     no = str(no).replace(' ', '')  # переводим в строку и убираем все пробелы
@@ -217,13 +217,15 @@ def normalize(no):
     else:
         raise ValueError(f'Недопустимый формат: "{f}"')
 
+    # проверяем наличие комбинаций вида "000"
+    if len(re.findall(r'(^|\D)0+(\D|$)', no)) > 0:
+        raise ValueError(f'Номер не может содержать числовые последовательности, равные 0')
+
     # проверяем допустимость региона
     if af == 'Х999ХХ999':
         reg = no[-3:len(no)]
         if reg not in ALLOWED_REGIONS:
             raise ValueError(f'Недопустимый регион: "{reg}"')
-    elif no[-2:len(no)] == '00':
-        raise ValueError(f'Недопустимый регион: "00"')
 
     return no
 

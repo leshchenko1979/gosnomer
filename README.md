@@ -8,6 +8,7 @@
 - Проверка допустимости формата номера
 - Исправление ошибок в заменой нуля на букву "О" и наооборот
 - Проверка правильности трехзначного кода региона
+- Проверка, что числовые последовательности не состоят только из нулей
 
 Примеры использования:
 ```
@@ -22,10 +23,15 @@ ValueError: Недопустимый формат: ""
 >>> normalize ('000000000')
 Traceback (most recent call last):
 ...
-ValueError: Недопустимый регион: "000"
+ValueError: Номер не может содержать числовые последовательности, равные 0
 
->>> normalize ('000000102')
-'О000ОО102'
+>>> normalize ('000100001')
+Traceback (most recent call last):
+...
+ValueError: Недопустимый регион: "001"
+
+>>> normalize ('000100102')
+'О001ОО102'
 
 >>> normalize ('ГН99900')
 Traceback (most recent call last):
@@ -52,11 +58,6 @@ ValueError: Недопустимый формат: "99999999"
 Traceback (most recent call last):
 ...
 ValueError: Недопустимый регион: "909"
-
->>> normalize ('оо23оооо')
-Traceback (most recent call last):
-...
-ValueError: Недопустимый регион: "00"
 ```
 
 Модуль также содержит наборы ALLOWED_LETTERS, ALLOWED_NUMBERS, ALLOWED_SYMBOLS и ALLOWED_FORMATS:
