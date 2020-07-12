@@ -12,16 +12,64 @@ import re
 
 _repl_old = 'ABCEHIKMOPTXYЗ'
 _repl_new = 'АВСЕН1КМОРТХУ3'
-_repl_tuples = list(zip(_repl_old, _repl_new))
+_repl_tuples = set(zip(_repl_old, _repl_new))
 
 ALLOWED_LETTERS = 'АВЕКМНОРСТУХ'
 ALLOWED_NUMBERS = '0123456789'
 ALLOWED_SYMBOLS = ALLOWED_LETTERS + ALLOWED_NUMBERS
 
+ALLOWED_LETTERS = set(ALLOWED_LETTERS)
+ALLOWED_NUMBERS = set(ALLOWED_NUMBERS)
+ALLOWED_SYMBOLS = set(ALLOWED_SYMBOLS)
+
+ALLOWED_REGIONS = set([str(x) for x in range(1,100)] +
+    [
+        '102',
+        '113',
+        '116',
+        '121',
+        '123',
+        '124',
+        '125',
+        '126',
+        '134',
+        '136',
+        '138',
+        '142',
+        '150',
+        '152',
+        '154',
+        '159',
+        '161',
+        '163',
+        '164',
+        '173',
+        '174',
+        '177',
+        '178',
+        '186',
+        '190',
+        '196',
+        '197',
+        '198',
+        '199',
+        '277',
+        '299',
+        '716',
+        '725',
+        '750',
+        '761',
+        '763',
+        '777',
+        '790',
+        '797',
+        '799'
+    ])
+
 # Далее определены возможные форматы госномеров для первых 2 типов госномеров
 # согласно ГОСТ Р 50577-2018 (https://ru.wikipedia.org/wiki/Регистрационные_знаки_транспортных_средств_в_России)
 
-ALLOWED_FORMATS = [
+ALLOWED_FORMATS = {
     'Х999ХХ99',  # Тип 1 — Регистрационные знаки легковых, грузовых автомобилей и автобусов 
     'Х999ХХ999', # Тип 1 — Регистрационные знаки легковых, грузовых автомобилей и автобусов (3 знака в регионе)
     'ХХ99999',   # Тип 1Б — Регистрационные знаки для легковых такси
@@ -35,15 +83,21 @@ ALLOWED_FORMATS = [
                  # Тип 7 — Регистрационные знаки для тракторов, самоходных дорожно-строительных и иных машин и прицепов (полуприцепов) к ним.
                  # Тип 8 — Регистрационные знаки для мотоциклов, внедорожных мототранспортных средств.
     'ХХ99ХХ99'   # Тип 4Б — Регистрационные знаки для мопедов
-]
+}
 
 '''
->>> ALLOWED_LETTERS
-'АВЕКМНОРСТУХ'
->>> ALLOWED_NUMBERS
-'0123456789'
->>> ALLOWED_SYMBOLS == ALLOWED_LETTERS + ALLOWED_SYMBOLS
+>>> 'Ю' in ALLOWED_LETTERS
+False
+
+>>> 1 in ALLOWED_NUMBERS
+False
+
+>>> '1' in ALLOWED_NUMBERS
 True
+
+>>> all([x in ALLOWED_SYMBOLS for x in ALLOWED_NUMBERS])
+True
+
 >>> 'Х999ХХ99' in ALLOWED_FORMATS
 True
 '''
@@ -52,24 +106,41 @@ def normalize(no):
     '''Берет на вход государственный регистрационнй номер авто с ошибками ручного ввода
     и возвращает исправленный госномер.
 
-    Поднимает ValueError, если номер не удается исправить.
+    Поднимает ValueError, если в номере, подаваемом на вход, содержатся ошибки, которые
+    невозможно исправить.
 
-    Примеры:
+    Args:
+        no (str): строка с номером, которую требуется нормализовать / исправить.
+
+    Returns:
+        str: исправленная, приведенная к стандарту строка с номером.
+
+    Raises:
+        ValueError: если строку не удается исправить, т.е. она содержит символы,
+            которым невозможно привести в соответствие один из стандартных,
+            или вся строка имеет неправильный формат.
+
+    Examples:
     >>> normalize ('')
     Traceback (most recent call last):
     ...
-    ValueError: Недопустимый формат: "".
+    ValueError: Недопустимый формат: ""
 
     >>> normalize ('YY1239O')
     'УУ12390'
 
     >>> normalize ('000000000')
-    'О000ОО000'
+    Traceback (most recent call last):
+    ...
+    ValueError: Недопустимый регион: "000"
+
+    >>> normalize ('000000102')
+    'О000ОО102'
 
     >>> normalize ('ГН99900')
     Traceback (most recent call last):
     ...
-    ValueError: Недопустимый символ: "Г".
+    ValueError: Недопустимый символ: "Г"
 
     >>> normalize ('   оо12345  ')
     'ОО12345'
@@ -77,16 +148,25 @@ def normalize(no):
     >>> normalize ('НН01ВВ67ОО78')
     Traceback (most recent call last):
     ...
-    ValueError: Недопустимый формат: "ХХ*9ХХ99**99".
+    ValueError: Недопустимый формат: "ХХ*9ХХ99**99"
 
     >>> normalize (12345678)
     Traceback (most recent call last):
     ...
-    ValueError: Недопустимый формат: "99999999".
+    ValueError: Недопустимый формат: "99999999"
 
     >>> normalize (12340078)
     '1234ОО78'
 
+    >>> normalize ('о123оо9о9')
+    Traceback (most recent call last):
+    ...
+    ValueError: Недопустимый регион: "909"
+
+    >>> normalize ('оо23оооо')
+    Traceback (most recent call last):
+    ...
+    ValueError: Недопустимый регион: "00"
     '''
 
     no = str(no).replace(' ', '')  # переводим в строку и убираем все пробелы
@@ -108,7 +188,7 @@ def normalize(no):
         if c in ALLOWED_NUMBERS:
             f = f + '9'
             continue
-        raise ValueError(f'Недопустимый символ: "{c}".')
+        raise ValueError(f'Недопустимый символ: "{c}"')
 
     # рекурсивно ищем подходящий формат
     def find_acceptable_format(f):
@@ -135,7 +215,15 @@ def normalize(no):
                 new_c = '0' if af[i] == '9' else 'О'
                 no = no[:i] + new_c + no[i+1:]
     else:
-        raise ValueError(f'Недопустимый формат: "{f}".')
+        raise ValueError(f'Недопустимый формат: "{f}"')
+
+    # проверяем допустимость региона
+    if af == 'Х999ХХ999':
+        reg = no[-3:len(no)]
+        if reg not in ALLOWED_REGIONS:
+            raise ValueError(f'Недопустимый регион: "{reg}"')
+    elif no[-2:len(no)] == '00':
+        raise ValueError(f'Недопустимый регион: "00"')
 
     return no
 

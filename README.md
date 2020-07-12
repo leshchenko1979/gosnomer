@@ -7,24 +7,30 @@
 - Проверка допустимости символов
 - Проверка допустимости формата номера
 - Исправление ошибок в заменой нуля на букву "О" и наооборот
+- Проверка правильности трехзначного кода региона
 
 Примеры использования:
 ```
 >>> normalize ('')
 Traceback (most recent call last):
 ...
-ValueError: Недопустимый формат: "".
+ValueError: Недопустимый формат: ""
 
 >>> normalize ('YY1239O')
 'УУ12390'
 
 >>> normalize ('000000000')
-'О000ОО000'
+Traceback (most recent call last):
+...
+ValueError: Недопустимый регион: "000"
+
+>>> normalize ('000000102')
+'О000ОО102'
 
 >>> normalize ('ГН99900')
 Traceback (most recent call last):
 ...
-ValueError: Недопустимый символ: "Г".
+ValueError: Недопустимый символ: "Г"
 
 >>> normalize ('   оо12345  ')
 'ОО12345'
@@ -32,26 +38,39 @@ ValueError: Недопустимый символ: "Г".
 >>> normalize ('НН01ВВ67ОО78')
 Traceback (most recent call last):
 ...
-ValueError: Недопустимый формат: "ХХ*9ХХ99**99".
+ValueError: Недопустимый формат: "ХХ*9ХХ99**99"
 
 >>> normalize (12345678)
 Traceback (most recent call last):
 ...
-ValueError: Недопустимый формат: "99999999".
+ValueError: Недопустимый формат: "99999999"
 
 >>> normalize (12340078)
 '1234ОО78'
+
+>>> normalize ('о123оо9о9')
+Traceback (most recent call last):
+...
+ValueError: Недопустимый регион: "909"
+
+>>> normalize ('оо23оооо')
+Traceback (most recent call last):
+...
+ValueError: Недопустимый регион: "00"
 ```
 
-Модуль также содержит константы ALLOWED_LETTERS, ALLOWED_NUMBERS, ALLOWED_SYMBOLS и ALLOWED_FORMATS:
+Модуль также содержит наборы ALLOWED_LETTERS, ALLOWED_NUMBERS, ALLOWED_SYMBOLS и ALLOWED_FORMATS:
 ```
->>> ALLOWED_LETTERS
-'АВЕКМНОРСТУХ'
+>>> 'Ю' in ALLOWED_LETTERS
+False
 
->>> ALLOWED_NUMBERS
-'0123456789'
+>>> 1 in ALLOWED_NUMBERS
+False
 
->>> ALLOWED_SYMBOLS == ALLOWED_LETTERS + ALLOWED_SYMBOLS
+>>> '1' in ALLOWED_NUMBERS
+True
+
+>>> all([x in ALLOWED_SYMBOLS for x in ALLOWED_NUMBERS])
 True
 
 >>> 'Х999ХХ99' in ALLOWED_FORMATS
