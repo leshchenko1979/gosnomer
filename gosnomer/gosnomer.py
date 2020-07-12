@@ -78,9 +78,18 @@ def normalize(no):
     Traceback (most recent call last):
     ...
     ValueError: Недопустимый формат: "ХХ*9ХХ99**99".
+
+    >>> normalize (12345678)
+    Traceback (most recent call last):
+    ...
+    ValueError: Недопустимый формат: "99999999".
+
+    >>> normalize (12340078)
+    '1234ОО78'
+
     '''
 
-    no = no.replace(' ', '')  # убираем все пробелы
+    no = str(no).replace(' ', '')  # переводим в строку и убираем все пробелы
 
     no = no.upper()  # все в верхний регистр
 
