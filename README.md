@@ -23,12 +23,12 @@ ValueError: Недопустимый формат: ""
 >>> normalize ('000000000')
 Traceback (most recent call last):
 ...
-ValueError: Номер не может содержать числовые последовательности, равные 0
+ValueError: Номер не может содержать числовые последовательности, состоящие только из нулей
 
 >>> normalize ('000100001')
 Traceback (most recent call last):
 ...
-ValueError: Недопустимый регион: "001"
+ValueError: Первая цифра трехзначного региона не может быть нулем
 
 >>> normalize ('000100102')
 'О001ОО102'
@@ -55,9 +55,7 @@ ValueError: Недопустимый формат: "99999999"
 '1234ОО78'
 
 >>> normalize ('о123оо9о9')
-Traceback (most recent call last):
-...
-ValueError: Недопустимый регион: "909"
+'О123ОО909'
 ```
 
 Модуль также содержит наборы ALLOWED_LETTERS, ALLOWED_NUMBERS, ALLOWED_SYMBOLS и ALLOWED_FORMATS:

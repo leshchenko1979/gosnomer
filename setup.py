@@ -5,7 +5,7 @@ with open("README.md", "r", encoding='utf-8') as fh:
 
 setuptools.setup(
     name="gosnomer",
-    version="0.0.7",
+    version="0.0.8",
     author="Alexey Leshchenko",
     author_email="leshchenko@gmail.com",
     description="Исправление ручного ввода автомобильных номеров РФ",
