@@ -159,9 +159,7 @@ def check_prefer(prefer):
     # проверить prefer
 
     if prefer:
-        not_found = set(prefer) - ALLOWED_FORMATS
-
-        if not_found:
+        if not_found := set(prefer) - ALLOWED_FORMATS:
             raise ValueError(
                 f"Параметр prefer содержит недопустимые форматы: {not_found}"
             )
